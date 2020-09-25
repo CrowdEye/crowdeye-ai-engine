@@ -140,11 +140,8 @@ def AiDetectionWorker(parameters):
     startTime = time.time()
     while(True):
         frames += 1
-        # print(frames)
-
-        # People
         peoplecount = 0
-        totalSpeed = 0
+        # print(frames)
 
         # Render and Parse Image Into DarkNet
         frame = currentFrame
@@ -236,7 +233,7 @@ def AiDetectionWorker(parameters):
                         ydir = "up"
 
                     # Calculate Speed
-                    speed = round(math.sqrt(abs(dx*dx-dy*dy))/10)
+                    speed = round(math.sqrt(abs(dx*dx-dy*dy))/25)
 
                     # Every 10 Frames, Calculate Line Cross
                     if(frames % 10 == 0):
@@ -269,15 +266,15 @@ def AiDetectionWorker(parameters):
 
         # Draw GUI Stuff
         if drawGui:
-            cv2.line(frame, lineA, lineB, (255, 0, 255), 10)
+            cv2.line(frame, lineA, lineB, (0,255,0), 10)
             cv2.rectangle(frame, (0, 15), (235, 35), (0,0,0), -1)
             cv2.rectangle(frame, (0, 450), (200, 500), (0,0,0), -1)
             cv2.putText(frame, f"=CrowdEye= Camera Node {cameraId}", (0, 30), defaultFont, 0.5, (0,165,255), 2)     
-            cv2.putText(frame, f"People Detected: {peoplecount}", (0, 60), defaultFont, 0.5, (255,255,0), 2)     
-            cv2.putText(frame, f"Total People Count: {len(uniqueIdList)}", (0, 90), defaultFont, 0.5, (255,255,0), 2)
-            cv2.putText(frame, f"People Count Cross Line Left: {totalLineCrossedLeft}", (0, 120), defaultFont, 0.5, (255,255,0), 2)            
-            cv2.putText(frame, f"People Count Cross Line Right: {totalLineCrossedRight}", (0, 150), defaultFont, 0.5, (255,255,0), 2)            
-            cv2.putText(frame, f"People Count Cross Line Total: {totalLineCrossed}", (0, 180), defaultFont, 0.5, (255,255,0), 2)           
+            cv2.putText(frame, f"People Detected: {peoplecount}", (0, 60), defaultFont, 0.5, (255, 255, 255), 2)     
+            cv2.putText(frame, f"Total People Count: {len(uniqueIdList)}", (0, 90), defaultFont, 0.5, (255, 255, 255), 2)
+            cv2.putText(frame, f"People Count Cross Line Left: {totalLineCrossedLeft}", (0, 120), defaultFont, 0.5, (255, 255, 255), 2)            
+            cv2.putText(frame, f"People Count Cross Line Right: {totalLineCrossedRight}", (0, 150), defaultFont, 0.5, (255, 255, 255), 2)            
+            cv2.putText(frame, f"People Count Cross Line Total: {totalLineCrossed}", (0, 180), defaultFont, 0.5, (255, 255, 255), 2)           
             cv2.putText(frame, f"Video Detection FPS: {round(frames / (time.time() - startTime))}", (0, 470), defaultFont, 0.5, (255,255,255), 2)
 
         # Render Frame To Variable
