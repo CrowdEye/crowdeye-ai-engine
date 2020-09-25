@@ -3,6 +3,9 @@ from webserver import *
 from ai import *
 import threading
 
+print("Starting AI Engine Server...")
+webApi.run(host='0.0.0.0', port="5500")
+
 '''
 parameters = {}
 parameters["drawGui"] = True
@@ -18,6 +21,7 @@ AIThread.start()
 AIThread.join()
 '''
 
+'''
 testNode = NodeInfo(127, "http://localhost:8080/stream.mjpg", renderToScreen=True)
  
 AIThread = threading.Thread(target=AiDetectionWorker, args=(testNode,))
@@ -25,6 +29,7 @@ AIThread.setDaemon(True)
 
 AIThread.start()
 AIThread.join()
+'''
 
 
 #AiDetectionWorker(parameters)
