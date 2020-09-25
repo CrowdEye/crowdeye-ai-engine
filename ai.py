@@ -33,18 +33,12 @@ fp = open("model/yolov3.classes", "r")
 classes = fp.read().split("\n")[:-1]
 # print(classes)
 
-defaultFont = cv2.FONT_HERSHEY_SIMPLEX
-
 # Frame Stuff
-cameraFrame = None
-finishedFrame = None
+defaultFont = cv2.FONT_HERSHEY_SIMPLEX
 connectingFrame = np.zeros(shape=[480, 640, 3], dtype=np.uint8)
-cv2.putText(connectingFrame, "[CrowdEye] Connecting To IP Camera...", (0, 30), defaultFont, 0.5, (255, 255, 255), 2)   
+cv2.putText(connectingFrame, "[CrowdEye] Connecting To IP Camera...", (0, 30), defaultFont, 0.5, (255, 255, 255), 2)
 
-# Line Infos
-lineA = (318,0)
-lineB = (318,637)
-
+# COLOURS!!!
 colours=[
     (255,0,0),
     (0,255,0),
@@ -58,11 +52,35 @@ colours=[
     (0,128,128)
 ]
 
-def openIpCam(ip):
+# Define Config Class
+class NodeInfo:
+    def __init__(self, cameraId, cameraIp, drawGui=True, renderToScreen=False):
+        # Important Node Params
+        self.cameraId = cameraId
+        self.cameraIp = cameraIp
+        self.drawGui = drawGui
+        self.renderToScreen = renderToScreen
+
+        # Tracker Information
+        self.totalPeopleCount = 0
+        self.totalLineCrossedLeft = 0
+        self.totalLineCrossedRight = 0
+        self.totalLineCrossed = 0
+
+        # Line Info
+        self.lineA = (318,0)
+        self.lineB = (318,637)
+
+        # Video Frames
+        self.cameraFrame = None
+        self.finishedFrame = None
+
+
+# Open Connection To Ip Camera
+def openIpCam(nodeInfo):
     while True:
-        global cameraFrame
         try:
-            with urllib.request.urlopen(ip) as url:
+            with urllib.request.urlopen(nodeInfo.cameraIp) as url:
                 inBytes = bytes()
                 while True:
                     inBytes += url.read(1024)
@@ -72,14 +90,14 @@ def openIpCam(ip):
                         jpg = inBytes[a:b+2]
                         inBytes = inBytes[b+2:]
                         i = cv2.imdecode(numpy.fromstring(jpg, dtype=numpy.uint8), cv2.IMREAD_COLOR)
-                        cameraFrame = i
+                        nodeInfo.cameraFrame = i
         except Exception as e:
             print(e)
-            cameraFrame = None
-        
+            nodeInfo.cameraFrame = None
         time.sleep(0.5)
 
 
+# Actual Detection Stuff
 def runDetection(img):
     # Scale + Pad Image
     # Code Stolen From Stack
@@ -106,15 +124,13 @@ def runDetection(img):
     #print(detections[0])
     return detections[0]
 
-def AiDetectionWorker(parameters):
+
+# Ai Worker Thread
+def AiDetectionWorker(nodeInfo):
     # Get Params
     #print(parameters)
-    drawGui = parameters["drawGui"]
-    renderToScreen = parameters["renderToScreen"]
-    cameraId = parameters["cameraId"]
-    cameraIp = parameters["cameraIp"]
-
-    print(f"Creating AI Worker For Camera {cameraId}")
+    #print(nodeInfo)
+    print(f"Creating AI Worker For Camera {nodeInfo.cameraId}")
 
     # Create Motion Tracker (Sort is the ALGO)
     motionTracker = Sort() 
@@ -123,14 +139,8 @@ def AiDetectionWorker(parameters):
     uniqueIdList = []
     LineCrossingIdCache = [] # List of ids which are currantly crossing the line
 
-    # Test Params
-    totalPeopleCount = 0
-    totalLineCrossedLeft = 0
-    totalLineCrossedRight = 0
-    totalLineCrossed = 0
-
     # Start Ip Camera
-    IPCamThread = threading.Thread(target=openIpCam, args=(cameraIp,))
+    IPCamThread = threading.Thread(target=openIpCam, args=(nodeInfo,))
     IPCamThread.setDaemon(True)
     IPCamThread.start()
 
@@ -149,16 +159,20 @@ def AiDetectionWorker(parameters):
     # Start Detection Loop
     frames = 0
     print(f"Starting AI Loop")
-    startTime = time.time()
+    startTime = None
     while(True):
-        frames += 1
         # Print Custom Thing If No Camera
-        if cameraFrame is not None:
+        if nodeInfo.cameraFrame is not None:
+            if startTime is None:
+                # Hacky thing to get accurate fps counter even when cam is down
+                frames = 0
+                startTime = time.time()
+            frames += 1
             peoplecount = 0
             # print(frames)
 
             # Render and Parse Image Into DarkNet
-            frame = cameraFrame
+            frame = nodeInfo.cameraFrame
             cv2.resize(frame, (480,640))
             pilImg = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             detections = runDetection(pilImg)
@@ -213,6 +227,7 @@ def AiDetectionWorker(parameters):
                         # print(objId)
                         print(f"Detected New Person {objId}")
                         uniqueIdList.append(objId)
+                        nodeInfo.totalPeopleCount = len(uniqueIdList)
 
                     # Add Dot To Tracking List
                     if objId in pointsDict:
@@ -252,23 +267,23 @@ def AiDetectionWorker(parameters):
 
                         # Every 10 Frames, Calculate Line Cross
                         if(frames % 10 == 0):
-                            lineCrossed = getCountLineCrossed(pointsDict[objId])
+                            lineCrossed = getCountLineCrossed(nodeInfo.lineA, nodeInfo.lineB, pointsDict[objId])
                             if lineCrossed != None:
                                 if objId not in LineCrossingIdCache:
                                     if lineCrossed == "left":
                                         print("Detection - Cross Left")
-                                        totalLineCrossedLeft += 1
+                                        nodeInfo.totalLineCrossedLeft += 1
                                     elif lineCrossed == "right":
                                         print("Detection - Cross Right")
-                                        totalLineCrossedRight += 1
-                                    totalLineCrossed += 1
+                                        nodeInfo.totalLineCrossedRight += 1
+                                    nodeInfo.totalLineCrossed += 1
                                     LineCrossingIdCache.append(objId)
                             else:
                                 if objId in LineCrossingIdCache:
                                     LineCrossingIdCache.remove(objId)
 
                     # Draw GUI Stuff
-                    if drawGui:
+                    if nodeInfo.drawGui:
                         colour = colours[objId % len(colours)]
                         cv2.rectangle(frame, (boxX1, boxY1), (boxX1+boxW, boxY1+boxH), colour, 4)
                         cv2.rectangle(frame, (boxX1, boxY1-105), (boxX1+len(detectedObj)*19+80, boxY1), colour, -1)
@@ -280,25 +295,26 @@ def AiDetectionWorker(parameters):
             # print("]")
 
             # Draw GUI Stuff
-            if drawGui:
-                cv2.line(frame, lineA, lineB, (0,255,0), 10)
+            if nodeInfo.drawGui:
+                cv2.line(frame, nodeInfo.lineA, nodeInfo.lineB, (0,255,0), 10)
                 cv2.rectangle(frame, (0, 15), (235, 35), (0,0,0), -1)
                 cv2.rectangle(frame, (0, 450), (200, 500), (0,0,0), -1)
-                cv2.putText(frame, f"=CrowdEye= Camera Node {cameraId}", (0, 30), defaultFont, 0.5, (0,165,255), 2)     
+                cv2.putText(frame, f"=CrowdEye= Camera Node {nodeInfo.cameraId}", (0, 30), defaultFont, 0.5, (0,165,255), 2)     
                 cv2.putText(frame, f"People Detected: {peoplecount}", (0, 60), defaultFont, 0.5, (255, 255, 255), 2)     
                 cv2.putText(frame, f"Total People Count: {len(uniqueIdList)}", (0, 90), defaultFont, 0.5, (255, 255, 255), 2)
-                cv2.putText(frame, f"People Count Cross Line Left: {totalLineCrossedLeft}", (0, 120), defaultFont, 0.5, (255, 255, 255), 2)            
-                cv2.putText(frame, f"People Count Cross Line Right: {totalLineCrossedRight}", (0, 150), defaultFont, 0.5, (255, 255, 255), 2)            
-                cv2.putText(frame, f"People Count Cross Line Total: {totalLineCrossed}", (0, 180), defaultFont, 0.5, (255, 255, 255), 2)           
+                cv2.putText(frame, f"People Count Cross Line Left: {nodeInfo.totalLineCrossedLeft}", (0, 120), defaultFont, 0.5, (255, 255, 255), 2)            
+                cv2.putText(frame, f"People Count Cross Line Right: {nodeInfo.totalLineCrossedRight}", (0, 150), defaultFont, 0.5, (255, 255, 255), 2)            
+                cv2.putText(frame, f"People Count Cross Line Total: {nodeInfo.totalLineCrossed}", (0, 180), defaultFont, 0.5, (255, 255, 255), 2)           
                 cv2.putText(frame, f"Video Detection FPS: {round(frames / (time.time() - startTime))}", (0, 470), defaultFont, 0.5, (255,255,255), 2)
         else:
+            startTime = None
             frame = connectingFrame  
 
         # Render Frame To Variable
-        finishedFrame = frame 
+        nodeInfo.finishedFrame = frame 
         # Check If Should Render To Secreen    
-        if(renderToScreen):
-            cv2.imshow(f"CrowdEye Camera Node {cameraId}", frame)
+        if(nodeInfo.renderToScreen):
+            cv2.imshow(f"CrowdEye Camera Node {nodeInfo.cameraId}", frame)
             key = 0xFF & cv2.waitKey(1)
             if key == 27 or key == ord("q"):
                 print("ENDING DETECTION")
@@ -306,7 +322,7 @@ def AiDetectionWorker(parameters):
 
 
 # Line Corssing Algo (stolen online)
-def getCountLineCrossed(trackingPointsList):
+def getCountLineCrossed(lineA, lineB, trackingPointsList):
     position = ((lineB[0] - lineA[0])*(trackingPointsList[0][1] - lineA[1]) - (lineB[1] - lineA[1])*(trackingPointsList[0][0] - lineA[0]))
     prevposition = ((lineB[0] - lineA[0])*(trackingPointsList[0 - 5][1] - lineA[1]) - (lineB[1] - lineA[1])*(trackingPointsList[0 - 5][0] - lineA[0]))
     #print(position, prevposition)
