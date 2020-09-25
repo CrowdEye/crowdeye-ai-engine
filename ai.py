@@ -11,6 +11,7 @@ from utils.sort import *
 from utils.utils import *
 from torchvision import transforms
 from torch.autograd import Variable
+import torch
 from collections import deque
 import urllib.request
 import threading
