@@ -35,8 +35,9 @@ classes = fp.read().split("\n")[:-1]
 # print(classes)
 
 # Frame Stuff
+screenX, screenY = (640, 480)
 defaultFont = cv2.FONT_HERSHEY_SIMPLEX
-connectingFrame = np.zeros(shape=[480, 640, 3], dtype=np.uint8)
+connectingFrame = np.zeros(shape=[screenY, screenX, 3], dtype=np.uint8)
 cv2.putText(connectingFrame, "[CrowdEye] Connecting To IP Camera...", (0, 30), defaultFont, 0.5, (255, 255, 255), 2)
 
 # COLOURS!!!
@@ -138,7 +139,7 @@ def runDetection(img):
 
     # Convert Image
     imageTensor = img_transforms(img).float()
-    imageTensor = imageTensor.unsqueeze_(0)
+    imageTensor = imageTensor.unsqueeze_(0).to("cuda:0")
     inputImg = Variable(imageTensor.type(torch.cuda.FloatTensor))
 
     # Get Detections
@@ -199,7 +200,7 @@ def AiDetectionWorker(nodeInfo):
 
             # Render and Parse Image Into DarkNet
             frame = nodeInfo.cameraFrame
-            cv2.resize(frame, (480,640))
+            frame = cv2.resize(frame, (screenX, screenY))
             pilImg = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
             detections = runDetection(pilImg)
             img = numpy.array(pilImg)
@@ -331,7 +332,7 @@ def AiDetectionWorker(nodeInfo):
                 cv2.putText(frame, f"People Count Cross Line Left: {nodeInfo.totalLineCrossedLeft}", (0, 120), defaultFont, 0.5, (255, 255, 255), 2)            
                 cv2.putText(frame, f"People Count Cross Line Right: {nodeInfo.totalLineCrossedRight}", (0, 150), defaultFont, 0.5, (255, 255, 255), 2)            
                 cv2.putText(frame, f"People Count Cross Line Total: {nodeInfo.totalLineCrossed}", (0, 180), defaultFont, 0.5, (255, 255, 255), 2)           
-                cv2.putText(frame, f"Video Detection FPS: {round(frames / (time.time() - startTime))}", (0, 470), defaultFont, 0.5, (255,255,255), 2)
+                cv2.putText(frame, f"Video Detection FPS: {round(frames / (time.time() - startTime))}", (0, screenY-10), defaultFont, 0.5, (255,255,255), 2)
         else:
             startTime = None
             frame = connectingFrame  
