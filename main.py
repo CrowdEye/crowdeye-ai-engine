@@ -8,7 +8,7 @@ parameters["drawGui"] = True
 parameters["renderToScreen"] = True
 parameters["showAll"] = False
 parameters["cameraId"] = 0
-parameters["cameraIp"] = "http://localhost:8080/video.mjpg"
+parameters["cameraIp"] = "http://localhost:8080/stream.mjpg"
  
 AIThread = threading.Thread(target=AiDetectionWorker, args=(parameters,))
 AIThread.setDaemon(True)
