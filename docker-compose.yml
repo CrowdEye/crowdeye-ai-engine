@@ -1,0 +1,10 @@
+version: "3.8"
+   
+services:
+  web:
+    build: .
+    command: python main.py
+    volumes:
+      - .:/code
+    ports:
+      - "5500:5500"

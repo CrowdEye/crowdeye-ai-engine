@@ -1,0 +1,42 @@
+certifi==2020.6.20
+click==7.1.2
+# cudatoolkit==10.2
+cycler==0.10.0
+decorator==4.4.2
+dill==0.3.2
+filterpy==1.4.5
+Flask==1.1.2
+future==0.18.2
+imageio==2.9.0
+itsdangerous==1.1.0
+Jinja2==2.11.2
+joblib==0.16.0
+kiwisolver==1.2.0
+MarkupSafe==1.1.1
+matplotlib==3.3.2
+networkx==2.5
+numba==0.51.2
+numpy==1.19.2
+opencv-contrib-python==4.4.0.44
+pandas==1.1.2
+patsy==0.5.1
+Pillow==7.2.0
+pyfunctional==1.4.2
+pyparsing==2.4.7
+python-dateutil==2.8.1
+pytz==2020.1
+PyWavelets==1.1.1
+scikit-image==0.17.2
+scikit-learn==0.22.2
+scipy==1.5.2
+seaborn==0.11.0
+six==1.15.0
+sklearn==0.0
+sklearn-utils==0.0.15
+statsmodels==0.12.0
+tabulate==0.8.7
+threadpoolctl==2.1.0
+tifffile==2020.9.22
+# torch==1.6.0
+# torchvision==0.7.0
+Werkzeug==1.0.1
