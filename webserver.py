@@ -64,6 +64,8 @@ def remove_camera(cam_id):
         time.sleep(0.5)
         if node.active is None:
             break
+
+    del cameras[cam_id]
     
     return "ok"
 

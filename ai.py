@@ -107,10 +107,15 @@ class NodeInfo:
 # Open Connection To Ip Camera
 def openIpCam(nodeInfo):
     while True:
+        if nodeInfo.active != True:
+            break
         try:
             with urllib.request.urlopen(nodeInfo.cameraIp) as url:
                 inBytes = bytes()
                 while True:
+                    if nodeInfo.active != True:
+                        nodeInfo.cameraFrame = None
+                        break
                     inBytes += url.read(1024)
                     a = inBytes.find(b'\xff\xd8')
                     b = inBytes.find(b'\xff\xd9')
@@ -191,6 +196,8 @@ def AiDetectionWorker(nodeInfo):
     while(True):
         if(nodeInfo.active == False):
             print(f"[NODE {nodeInfo.nodeId}] Stopping Ai Loop")
+            nodeInfo.finishedFrame = None
+            nodeInfo.cameraFrame = None
             # Set To None to Signal Successful Closure!!
             nodeInfo.active = None
             # Break Out Of Loop And Stop Server
