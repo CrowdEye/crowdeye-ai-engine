@@ -63,6 +63,7 @@ class NodeInfo:
         self.drawGui = drawGui
         self.renderToScreen = renderToScreen
         self.thread = None
+        self.active = True  # Hacky Way To Remotely Stop Thread
 
         # Tracker Information
         self.totalPeopleCount = 0
@@ -188,6 +189,12 @@ def AiDetectionWorker(nodeInfo):
     print(f"[NODE {nodeInfo.nodeId}] Starting AI Loop")
     startTime = None
     while(True):
+        if(nodeInfo.active == False):
+            print(f"[NODE {nodeInfo.nodeId}] Stopping Ai Loop")
+            # Set To None to Signal Successful Closure!!
+            nodeInfo.active = None
+            # Break Out Of Loop And Stop Server
+            break
         # Print Custom Thing If No Camera
         if nodeInfo.cameraFrame is not None:
             if startTime is None:

@@ -1,6 +1,7 @@
 from flask import Flask, Response, jsonify, request
 from ai import NodeInfo, AiDetectionWorker
 import threading
+import time
 webApi = Flask(__name__)
 
 # Dict Of All Cameras + Ids
@@ -43,6 +44,28 @@ def add_camera():
     cameras[node_id] = newNode
     
     return str(node_id)
+
+
+# Remove Camera
+@webApi.route("/remove_camera/<cam_id>", methods=["GET"], strict_slashes=False)
+def remove_camera(cam_id):
+    cam_id = str(cam_id)
+
+    if cam_id not in cameras:
+        return f"Camera {cam_id} Not Found", 400
+    node = cameras[cam_id]
+
+    # Set Stop Flag
+    node.active = False
+
+    # Wait for server to stop
+    print(f"Waiting To Stop Server {cam_id}")
+    while True:
+        time.sleep(0.5)
+        if node.active is None:
+            break
+    
+    return "ok"
 
 
 # Get Cameras
