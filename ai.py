@@ -108,14 +108,14 @@ class NodeInfo:
 def openIpCam(nodeInfo):
     while True:
         if nodeInfo.active != True:
-            break
+            break  # Node Stop
         try:
             with urllib.request.urlopen(nodeInfo.cameraIp) as url:
                 inBytes = bytes()
                 while True:
                     if nodeInfo.active != True:
                         nodeInfo.cameraFrame = None
-                        break
+                        break  # Node Stop
                     inBytes += url.read(1024)
                     a = inBytes.find(b'\xff\xd8')
                     b = inBytes.find(b'\xff\xd9')
