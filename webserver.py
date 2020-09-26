@@ -11,7 +11,7 @@ cameras = {}
 # Main Index Stuff
 @webApi.route("/", methods=["GET"], strict_slashes=False)
 def index():
-    return "CrowdEye AI Detection Engine ACTIVE!"
+    return f"CrowdEye AI Detection Engine ACTIVE! Cameras Connected: {len(cameras.keys())}"
 
 
 # Add Camera
