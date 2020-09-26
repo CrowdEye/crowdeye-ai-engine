@@ -49,7 +49,7 @@ def add_camera():
 
 
 # Remove Camera
-@webApi.route("/remove_camera/<cam_id>", methods=["GET"], strict_slashes=False)
+@webApi.route("/remove_camera/<cam_id>", methods=["DELETE"], strict_slashes=False)
 def remove_camera(cam_id):
     cam_id = str(cam_id)
 

@@ -86,7 +86,7 @@ class NodeInfo:
                 img = self.cameraFrame
             else:
                 img = connectingFrame
-            _, jpg = cv2.imencode('.jpg', img)
+            _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -98,7 +98,7 @@ class NodeInfo:
                 img = self.finishedFrame
             else:
                 img = connectingFrame
-            _, jpg = cv2.imencode('.jpg', img)
+            _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
