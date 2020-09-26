@@ -328,7 +328,7 @@ def AiDetectionWorker(nodeInfo):
                         colour = colours[objId % len(colours)]
                         cv2.rectangle(frame, (boxX1, boxY1), (boxX1+boxW, boxY1+boxH), colour, 4)
                         cv2.rectangle(frame, (boxX1, boxY1-105), (boxX1+len(detectedObj)*19+80, boxY1), colour, -1)
-                        cv2.putText(frame, f"ID: " + str(objId), (boxX1, boxY1 - 10), defaultFont, 1, (255,255,255), 3)
+                        cv2.putText(frame, f"ID: {objId}", (boxX1, boxY1 - 10), defaultFont, 1, (255,255,255), 3)
                         cv2.putText(frame, f"{xdir} - {ydir}", (boxX1, boxY1 - 35), defaultFont, 1, (255,255,255), 3)
                         cv2.putText(frame, f"Speed: {speed}", (boxX1, boxY1 - 70), defaultFont, 1, (255,255,255), 3)
                         cv2.circle(frame, center, 5, (0, 0, 255), 5)
@@ -375,4 +375,4 @@ def getCountLineCrossed(lineA, lineB, trackingPointsList):
     return None
 
 # Close Windows
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
