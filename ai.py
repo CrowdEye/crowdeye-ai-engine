@@ -90,9 +90,10 @@ class NodeInfo:
                 img = connectingFrame
             if (len(sys.argv) > 1):
                 jpg = turbojpeg.encode(img, quality=40)
+                frame = jpg
             else:
                 _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
-            frame = jpg.tobytes()
+                frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
@@ -106,9 +107,10 @@ class NodeInfo:
                 img = connectingFrame
             if (len(sys.argv) > 1):
                 jpg = turbojpeg.encode(img, quality=40)
+                frame = jpg
             else:
                 _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
-            frame = jpg.tobytes()
+                frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
