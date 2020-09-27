@@ -82,6 +82,7 @@ class NodeInfo:
     def generateCameraStream(self):
         print(f"[NODE {self.nodeId}] Generating Camera Stream")
         while True:
+            time.sleep(0.02)
             if self.cameraFrame is not None:
                 img = self.cameraFrame
             else:
@@ -94,6 +95,7 @@ class NodeInfo:
     def generateAiStream(self):
         print(f"[NODE {self.nodeId}] Generating AI Stream")
         while True:
+            time.sleep(0.02)
             if self.finishedFrame is not None:
                 img = self.finishedFrame
             else:
@@ -113,6 +115,7 @@ def openIpCam(nodeInfo):
             with urllib.request.urlopen(nodeInfo.cameraIp) as url:
                 inBytes = bytes()
                 while True:
+                    time.sleep(0.02)
                     if nodeInfo.active != True:
                         nodeInfo.cameraFrame = None
                         break  # Node Stop
@@ -194,6 +197,7 @@ def AiDetectionWorker(nodeInfo):
     print(f"[NODE {nodeInfo.nodeId}] Starting AI Loop")
     startTime = None
     while(True):
+        times.sleep(0.01)
         if(nodeInfo.active == False):
             print(f"[NODE {nodeInfo.nodeId}] Stopping Ai Loop")
             nodeInfo.finishedFrame = None
