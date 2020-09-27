@@ -11,6 +11,7 @@ from utils.sort import *
 from utils.utils import *
 from torchvision import transforms
 from torch.autograd import Variable
+from turbojpeg import TurboJPEG
 import torch
 from collections import deque
 import urllib.request
@@ -21,6 +22,7 @@ import cv2
 import math
 import time
 import os
+import sys
 
 # load model and put into eval mode
 imgSize = 416
@@ -39,6 +41,8 @@ screenX, screenY = (640, 480)
 defaultFont = cv2.FONT_HERSHEY_SIMPLEX
 connectingFrame = np.zeros(shape=[screenY, screenX, 3], dtype=np.uint8)
 cv2.putText(connectingFrame, "[CrowdEye] Connecting To IP Camera...", (0, 30), defaultFont, 0.5, (255, 255, 255), 2)
+if (len(sys.argv) > 1):
+    turbojpeg = TurboJPEG("/usr/lib/x86_64-linux-gnu/libturbojpeg.so")
 
 # COLOURS!!!
 colours=[
@@ -53,6 +57,7 @@ colours=[
     (128,128,0),
     (0,128,128)
 ]
+
 
 # Define Config Class
 class NodeInfo:
@@ -115,17 +120,20 @@ def openIpCam(nodeInfo):
             with urllib.request.urlopen(nodeInfo.cameraIp) as url:
                 inBytes = bytes()
                 while True:
-                    time.sleep(0.02)
                     if nodeInfo.active != True:
                         nodeInfo.cameraFrame = None
                         break  # Node Stop
-                    inBytes += url.read(1024)
+                    time.sleep(0.01)
+                    inBytes += url.read1()
                     a = inBytes.find(b'\xff\xd8')
                     b = inBytes.find(b'\xff\xd9')
                     if a != -1 and b != -1:
                         jpg = inBytes[a:b+2]
-                        inBytes = inBytes[b+2:]
-                        i = cv2.imdecode(numpy.fromstring(jpg, dtype=numpy.uint8), cv2.IMREAD_COLOR)
+                        inBytes = inBytes[b+2:]                        
+                        if (len(sys.argv) > 1):
+                            i = turbojpeg.decode(jpg)
+                        else:
+                            i = cv2.imdecode(numpy.fromstring(jpg, dtype=numpy.uint8), cv2.IMREAD_COLOR)
                         nodeInfo.cameraFrame = i
         except Exception as e:
             print(f"[NODE {nodeInfo.nodeId}] Open Camera Error: {e}")
