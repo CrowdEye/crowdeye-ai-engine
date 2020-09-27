@@ -72,6 +72,23 @@ def remove_camera(cam_id):
     return "ok"
 
 
+# Reset Camera
+@webApi.route("/reset_camera/<cam_id>", methods=["POST"], strict_slashes=False)
+def reset_camera(cam_id):
+    cam_id = str(cam_id)
+
+    if cam_id not in cameras:
+        return f"Camera {cam_id} Not Found", 400
+    node = cameras[cam_id]
+
+    node.totalPeopleCount = 0
+    node.totalLineCrossedLeft = 0
+    node.totalLineCrossedRight = 0
+    node.totalLineCrossed = 0
+    
+    return "ok"
+
+
 # Get Cameras
 @webApi.route("/get_cameras", methods=["GET"], strict_slashes=False)
 def get_cameras():
