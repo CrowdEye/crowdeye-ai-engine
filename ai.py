@@ -197,7 +197,7 @@ def AiDetectionWorker(nodeInfo):
     print(f"[NODE {nodeInfo.nodeId}] Starting AI Loop")
     startTime = None
     while(True):
-        times.sleep(0.01)
+        time.sleep(0.01)
         if(nodeInfo.active == False):
             print(f"[NODE {nodeInfo.nodeId}] Stopping Ai Loop")
             nodeInfo.finishedFrame = None
