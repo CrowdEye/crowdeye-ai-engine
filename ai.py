@@ -92,7 +92,10 @@ class NodeInfo:
                 img = self.cameraFrame
             else:
                 img = connectingFrame
-            _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
+            if (len(sys.argv) > 1):
+                jpg = turbojpeg.encode(img, quality=40)
+            else:
+                _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -105,7 +108,10 @@ class NodeInfo:
                 img = self.finishedFrame
             else:
                 img = connectingFrame
-            _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
+            if (len(sys.argv) > 1):
+                jpg = turbojpeg.encode(img, quality=40)
+            else:
+                _, jpg = cv2.imencode('.jpg', img, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
             frame = jpg.tobytes()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
@@ -129,7 +135,7 @@ def openIpCam(nodeInfo):
                     b = inBytes.find(b'\xff\xd9')
                     if a != -1 and b != -1:
                         jpg = inBytes[a:b+2]
-                        inBytes = inBytes[b+2:]                        
+                        inBytes = inBytes[b+2:]
                         if (len(sys.argv) > 1):
                             i = turbojpeg.decode(jpg)
                         else:
