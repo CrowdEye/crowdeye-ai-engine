@@ -26,10 +26,6 @@ import sys
 
 # load model and put into eval mode
 imgSize = 416
-model = Darknet("model/yolov3.cfg", img_size=imgSize)
-model.load_weights("model/yolov3.weights")
-model.cuda()
-model.eval()
 
 # Load Classes
 fp = open("model/yolov3.classes", "r")
@@ -148,7 +144,7 @@ def openIpCam(nodeInfo):
 
 
 # Actual Detection Stuff
-def runDetection(img):
+def runDetection(model, img):
     # Scale + Pad Image
     # Code Stolen From Stack
     ratio = min(imgSize/img.size[0], imgSize/img.size[1])
@@ -177,6 +173,10 @@ def runDetection(img):
 
 # Ai Worker Thread
 def AiDetectionWorker(nodeInfo):
+    model = Darknet("model/yolov3.cfg", img_size=imgSize)
+    model.load_weights("model/yolov3.weights")
+    model.cuda()
+    model.eval()
     # Get Params
     #print(parameters)
     #print(nodeInfo)
@@ -234,7 +234,7 @@ def AiDetectionWorker(nodeInfo):
             frame = nodeInfo.cameraFrame
             frame = cv2.resize(frame, (screenX, screenY))
             pilImg = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-            detections = runDetection(pilImg)
+            detections = runDetection(model, pilImg)
             img = numpy.array(pilImg)
 
             # Get Padding
