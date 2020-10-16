@@ -1,10 +1,19 @@
 version: "3.8"
    
 services:
-  web:
+  ai:
+    container_name: ai
     build: .
     command: python main.py
     volumes:
       - .:/code
     ports:
       - "5500:5500"
+
+
+    networks:
+      - some-net
+
+networks:
+  some-net:
+    driver: bridge
