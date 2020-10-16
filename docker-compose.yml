@@ -4,7 +4,7 @@ services:
   ai:
     container_name: ai
     build: .
-    command: python main.py
+    command: python main.py --no-gpus
     volumes:
       - .:/code
     ports:

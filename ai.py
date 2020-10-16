@@ -4,6 +4,18 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
+
+# Parse cmd args
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-n',
+                    '--no-gpus',
+                    action='store_true',
+                    help='Disable GPU for AI usage')
+
+args = parser.parse_args()
+# if args.no_gpus is True, then disable GPU
+
 # Imports
 from utils.datasets import *
 from utils.models import *
@@ -24,11 +36,14 @@ import time
 import os
 import sys
 
+# Setup args parser
+
 # load model and put into eval mode
 imgSize = 416
 model = Darknet("model/yolov3.cfg", img_size=imgSize)
 model.load_weights("model/yolov3.weights")
-model.cuda()
+if not args.no_gpus:
+    model.cuda()
 model.eval()
 
 # Load Classes
@@ -164,8 +179,12 @@ def runDetection(img):
 
     # Convert Image
     imageTensor = img_transforms(img).float()
-    imageTensor = imageTensor.unsqueeze_(0).to("cuda:0")
-    inputImg = Variable(imageTensor.type(torch.cuda.FloatTensor))
+    if args.no_gpus:
+        imageTensor = imageTensor.unsqueeze_(0)
+        inputImg = Variable(imageTensor.type(torch.FloatTensor))
+    else:
+        imageTensor = imageTensor.unsqueeze_(0).to("cuda:0")
+        inputImg = Variable(imageTensor.type(torch.cuda.FloatTensor))
 
     # Get Detections
     with torch.no_grad():
