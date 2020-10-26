@@ -16,3 +16,5 @@ RUN apt install libgl1-mesa-glx -y
 
 
 COPY . /code/
+
+CMD [ "python", "main.py" ]
