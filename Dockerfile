@@ -15,10 +15,10 @@ RUN mkdir models && cd models && wget https://pjreddie.com/media/files/yolov3.we
 RUN apt update -y
 RUN apt install libgl1-mesa-glx -y
 
+COPY . /code/
+
 RUN ls
 RUN pwd
-
-
-COPY . /code/
+RUN ls ./models/
 
 CMD [ "python", "main.py" ]
