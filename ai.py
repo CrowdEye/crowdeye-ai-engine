@@ -39,6 +39,11 @@ import sys
 # Setup args parser
 
 # load model and put into eval mode
+print("="*20)
+print(os.system("ls"))
+print(os.system("model"))
+print("="*20)
+
 imgSize = 416
 model = Darknet("model/yolov3.cfg", img_size=imgSize)
 model.load_weights("model/yolov3.weights")
