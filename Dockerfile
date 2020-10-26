@@ -11,8 +11,12 @@ RUN conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
 
 RUN mkdir models && cd models && wget https://pjreddie.com/media/files/yolov3.weights && cd ..
 
+
 RUN apt update -y
 RUN apt install libgl1-mesa-glx -y
+
+RUN ls
+RUN pwd
 
 
 COPY . /code/
