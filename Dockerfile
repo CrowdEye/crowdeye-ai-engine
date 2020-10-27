@@ -16,12 +16,9 @@ RUN apt update -y
 RUN apt install libgl1-mesa-glx -y
 
 # Ubuntu renamed the libturbojpeg package
-RUN ln -s /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0.0.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
 
 
 COPY . /code/
-
-RUN ls
-RUN pwd
 
 CMD [ "python", "main.py", "--no-gpus" ]
