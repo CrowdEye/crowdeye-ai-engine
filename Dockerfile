@@ -19,6 +19,5 @@ COPY . /code/
 
 RUN ls
 RUN pwd
-RUN ls ./models/
 
 CMD [ "python", "main.py" ]
