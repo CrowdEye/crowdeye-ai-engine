@@ -41,7 +41,7 @@ import sys
 # load model and put into eval mode
 print("="*20)
 print(os.system("ls"))
-print(os.system("model"))
+print(os.system("ls model"))
 print("="*20)
 
 imgSize = 416
