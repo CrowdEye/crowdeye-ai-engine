@@ -14,7 +14,7 @@ RUN mkdir model && cd model && wget https://pjreddie.com/media/files/yolov3.weig
 
 RUN apt update -y
 RUN apt install libgl1-mesa-glx -y
-
+RUN ls /usr/lib/x86_64-linux-gnu
 
 # Ubuntu renamed the libturbojpeg package
 
