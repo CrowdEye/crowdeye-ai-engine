@@ -17,7 +17,7 @@ RUN apt install libgl1-mesa-glx -y
 
 # Ubuntu renamed the libturbojpeg package
 RUN ln -s /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0.0.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
-
+RUN ls usr/lib/x86_64-linux-gnu/
 
 COPY . /code/
 
