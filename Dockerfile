@@ -7,7 +7,7 @@ COPY conda-req.txt /code/
 RUN pip install -r requirements.txt --ignore-installed
 
 # RUN conda install --file conda-req.txt
-RUN conda install pytorch torchvision cudatoolkit=10.2 libturbojpeg0 -c pytorch
+RUN conda install pytorch torchvision cudatoolkit=10.2 libturbojpeg -c pytorch
 
 RUN mkdir model && cd model && wget https://pjreddie.com/media/files/yolov3.weights && cd ..
 
