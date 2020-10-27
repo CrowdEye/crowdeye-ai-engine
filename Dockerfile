@@ -20,4 +20,4 @@ COPY . /code/
 RUN ls
 RUN pwd
 
-CMD [ "python", "main.py" ]
+CMD [ "python", "main.py", "--no-gpus" ]
