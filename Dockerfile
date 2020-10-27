@@ -7,14 +7,14 @@ COPY conda-req.txt /code/
 RUN pip install -r requirements.txt --ignore-installed
 
 # RUN conda install --file conda-req.txt
-RUN conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
+RUN conda install pytorch torchvision cudatoolkit=10.2 libturbojpeg0 -c pytorch
 
 RUN mkdir model && cd model && wget https://pjreddie.com/media/files/yolov3.weights && cd ..
 
 
 RUN apt update -y
 RUN apt install libgl1-mesa-glx -y
-RUN ls /usr/lib/x86_64-linux-gnu
+
 
 # Ubuntu renamed the libturbojpeg package
 
