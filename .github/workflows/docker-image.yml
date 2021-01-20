@@ -14,5 +14,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       env:
-        TAG: $(date +%s)
+        TAG: latest
       run: docker build . --file Dockerfile --tag docker.tommcn.mcnamer.ca/crowdeye-ai:$TAG && docker push docker.tommcn.mcnamer.ca/crowdeye-ai:$TAG
