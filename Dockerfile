@@ -17,10 +17,11 @@ RUN apt-get install libgl1-mesa-glx -y
 RUN apt-get install libturbojpeg0 -y
 
 
-# Ubuntu renamed the libturbojpeg package
+# Ubuntu renamed the libturbojpeg package, maybe???
 RUN ln /usr/lib/x86_64-linux-gnu/libturbojpeg.so.0 /usr/lib/x86_64-linux-gnu/libturbojpeg.so
 RUN ls /usr/lib/x86_64-linux-gnu/
 
 COPY . /code/
 
+# Get rid if you GPUs and are ready to do A LOT of debugging :)
 CMD [ "python", "main.py", "--no-gpus" ]

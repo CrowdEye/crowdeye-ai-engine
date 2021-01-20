@@ -1,5 +1,5 @@
 version: "3.8"
-   
+
 services:
   ai:
     container_name: ai
@@ -9,11 +9,11 @@ services:
       - .:/code
     ports:
       - "5500:5500"
-
+      - "80:80"
 
     networks:
-      - some-net
+      - ai-net
 
 networks:
-  some-net:
+  ai-net:
     driver: bridge
