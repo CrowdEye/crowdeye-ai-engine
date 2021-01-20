@@ -15,3 +15,4 @@ jobs:
       name: Build and push the Docker image
       with:
         push: true
+        tags: latest
