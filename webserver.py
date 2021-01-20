@@ -3,12 +3,18 @@ from flask_cors import CORS
 from ai import NodeInfo, AiDetectionWorker
 import threading
 import time
+from celery.task.control import revoke
+
+
+import redis
+
 webApi = Flask(__name__)
 CORS(webApi)
 
+
 # Dict Of All Cameras + Ids
 cameras = {}
-
+r = redis.Redis(host='redis', port=6379, db=0)
 
 # Main Index Stuff
 @webApi.route("/", methods=["GET"], strict_slashes=False)
@@ -34,13 +40,21 @@ def add_camera():
     print(f"Creating Node {node_id}")
 
     # Creating New Thread!!!
+    # TODO: Add data to Redis
+    # TODO: Start celery worker
+
+
     newNode = NodeInfo(node_id, cam_ip)
-    nodeThread = threading.Thread(target=AiDetectionWorker, args=(newNode,))
-    nodeThread.setDaemon(True)
-    newNode.thread = newNode
+    
+    # nodeThread = threading.Thread(target=AiDetectionWorker, args=(newNode,))
+    # nodeThread.setDaemon(True)
+    # newNode.thread = newNode
+    
+    t_id = AiDetectionWorker.delay(newNode)
+    newNode.thread = t_id
 
     # Start Thread
-    nodeThread.start()
+    # nodeThread.start()
 
     # Add To Camera Dict
     cameras[node_id] = newNode
@@ -58,7 +72,8 @@ def remove_camera(cam_id):
     node = cameras[cam_id]
 
     # Set Stop Flag
-    node.active = False
+    # node.active = False
+
 
     # Wait for server to stop
     print(f"Waiting To Stop Server {cam_id}")
@@ -66,8 +81,10 @@ def remove_camera(cam_id):
         time.sleep(0.5)
         if node.active is None:
             break
-
-    del cameras[cam_id]
+    
+    # TODO: Remove cam from Redis
+    # TODO: Kill celery worker
+    revoke(cameras[cam_id].thread, terminate=True)
     
     return "ok"
 

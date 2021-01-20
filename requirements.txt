@@ -1,20 +1,24 @@
+astroid==2.4.2
 certifi==2020.6.20
 click==7.1.2
-# cudatoolkit==10.2
 cycler==0.10.0
 decorator==4.4.2
 dill==0.3.2
 filterpy==1.4.5
 Flask==1.1.2
-flask-cors==3.0.9
+Flask-Cors==3.0.9
 future==0.18.2
 imageio==2.9.0
+isort==5.6.2
 itsdangerous==1.1.0
 Jinja2==2.11.2
 joblib==0.16.0
 kiwisolver==1.2.0
+lazy-object-proxy==1.4.3
+llvmlite==0.34.0
 MarkupSafe==1.1.1
 matplotlib==3.3.2
+mccabe==0.6.1
 networkx==2.5
 numba==0.51.2
 numpy==1.19.2
@@ -23,11 +27,13 @@ pandas==1.1.2
 patsy==0.5.1
 Pillow==7.2.0
 pyfunctional==1.4.2
+pylint==2.6.0
 pyparsing==2.4.7
 python-dateutil==2.8.1
+PyTurboJPEG==1.4.1
 pytz==2020.1
 PyWavelets==1.1.1
-PyTurboJPEG==1.4.1
+redis==3.5.3
 scikit-image==0.17.2
 scikit-learn==0.22.2
 scipy==1.5.2
@@ -39,6 +45,8 @@ statsmodels==0.12.0
 tabulate==0.8.7
 threadpoolctl==2.1.0
 tifffile==2020.9.22
-# torch==1.6.0
-# torchvision==0.7.0
+toml==0.10.1
+torch==1.6.0
+torchvision==0.7.0
 Werkzeug==1.0.1
+wrapt==1.12.1

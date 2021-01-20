@@ -35,6 +35,11 @@ import math
 import time
 import os
 import sys
+from celery import Celery
+
+app = Celery('tasks', broker='pyamqp://rabbitmq//')
+
+
 
 # Setup args parser
 
@@ -197,6 +202,7 @@ def runDetection(img):
 
 
 # Ai Worker Thread
+@app.task
 def AiDetectionWorker(nodeInfo):
     # Get Params
     #print(parameters)
