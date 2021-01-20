@@ -1,4 +1,7 @@
+# Files that can change without invalidating docker cache
 **/env/
 .dockerignore
 Dockerfile
 docker-compose.yml
+.github/
+.vscode/
