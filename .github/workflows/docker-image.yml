@@ -24,4 +24,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: docker.tommcn.mcnaner.ca/crowdeye/ai-engine:latest
+          tags: docker.tommcn.mcnamer.ca/crowdeye/ai-engine:latest
