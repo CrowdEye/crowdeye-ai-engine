@@ -13,4 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker.tommcn.mcnamer.ca/crowdeye-ai:$(date +%s) && docker push docker.tommcn.mcnamer.ca/crowdeye-ai:$(date +%s)
+      env:
+        TAG: latest
+      run: docker build . --file Dockerfile --tag docker.tommcn.mcnamer.ca/crowdeye-ai:$TAG && docker push docker.tommcn.mcnamer.ca/crowdeye-ai:$TAG
