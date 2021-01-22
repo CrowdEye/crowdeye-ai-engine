@@ -1,25 +1,22 @@
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
-from ai import NodeInfo, AiDetectionWorker
+from ai import AiDetectionWorker
 import threading
 import time
+from models import Node
 from celery.task.control import revoke
 
 
 import redis
 
+
 webApi = Flask(__name__)
 CORS(webApi)
-
-
-# Dict Of All Cameras + Ids
-cameras = {}
-r = redis.Redis(host='redis', port=6379, db=0)
 
 # Main Index Stuff
 @webApi.route("/", methods=["GET"], strict_slashes=False)
 def index():
-    return f"CrowdEye AI Detection Engine ACTIVE! Cameras Connected: {len(cameras.keys())}"
+    return f"CrowdEye AI Detection Engine ACTIVE! Cameras Connected: {Node.get().all().count()}"
 
 
 # Add Camera
@@ -34,7 +31,7 @@ def add_camera():
     except ValueError:
         return "Arguments Have Wrong Datatype", 400
 
-    if node_id in cameras:
+    if Node.get_by(nodeId=node_id):
         return f"Camera {node_id} Already Exists", 400
 
     print(f"Creating Node {node_id}")
@@ -44,21 +41,11 @@ def add_camera():
     # TODO: Start celery worker
 
 
-    newNode = NodeInfo(node_id, cam_ip)
-    
-    # nodeThread = threading.Thread(target=AiDetectionWorker, args=(newNode,))
-    # nodeThread.setDaemon(True)
-    # newNode.thread = newNode
+    # newNode = NodeInfo(node_id, cam_ip)
+    newNode = Node(nodeId=node_id, cameraIp=cam_ip)
     
     t_id = AiDetectionWorker.delay(newNode)
     newNode.thread = t_id
-
-    # Start Thread
-    # nodeThread.start()
-
-    # Add To Camera Dict
-    cameras[node_id] = newNode
-    
     return str(node_id)
 
 
@@ -67,24 +54,14 @@ def add_camera():
 def remove_camera(cam_id):
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
 
-    # Set Stop Flag
-    # node.active = False
+    node = Node.get_by(nodeId=cam_id)
 
-
-    # Wait for server to stop
-    print(f"Waiting To Stop Server {cam_id}")
-    while True:
-        time.sleep(0.5)
-        if node.active is None:
-            break
-    
     # TODO: Remove cam from Redis
     # TODO: Kill celery worker
-    revoke(cameras[cam_id].thread, terminate=True)
+    revoke(node.thread, terminate=True)
     
     return "ok"
 
@@ -94,9 +71,9 @@ def remove_camera(cam_id):
 def reset_camera(cam_id):
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
+    node = Node.get_by(nodeId=cam_id)
 
     node.totalPeopleCount = 0
     node.totalLineCrossedLeft = 0
@@ -109,7 +86,7 @@ def reset_camera(cam_id):
 # Get Cameras
 @webApi.route("/get_cameras", methods=["GET"], strict_slashes=False)
 def get_cameras():
-    return jsonify(list(cameras.keys()))
+    return jsonify(Node.query.all())
 
 
 # Get Camera Info
@@ -117,9 +94,9 @@ def get_cameras():
 def camera_info(cam_id):
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
+    node = Node.get_by(nodeId=cam_id)
 
     response = {}
     response["node_id"] = node.nodeId
@@ -138,9 +115,9 @@ def camera_change_line(cam_id):
     data = request.get_json(force=True)
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
+    node = Node.get_by(nodeId=cam_id)
 
     try:
         ax = int(data["ax"])
@@ -152,8 +129,10 @@ def camera_change_line(cam_id):
     except ValueError:
         return "Arguments Have Wrong Datatype", 400
 
-    node.lineA = (ax, ay)
-    node.lineB = (bx, by)
+    node.lineAX = ax
+    node.lineAY = ay
+    node.lineBX = bx
+    node.lineBY = by
 
     return "ok"
 
@@ -163,9 +142,9 @@ def camera_change_line(cam_id):
 def camera_stream(cam_id):
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
+    node = Node.get_by(nodeId=cam_id)
 
     return Response(node.generateCameraStream(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -175,8 +154,8 @@ def camera_stream(cam_id):
 def camera_stream_annotated(cam_id):
     cam_id = str(cam_id)
 
-    if cam_id not in cameras:
+    if not Node.get_by(nodeId=cam_id):
         return f"Camera {cam_id} Not Found", 400
-    node = cameras[cam_id]
+    node = Node.get_by(nodeId=cam_id)
 
     return Response(node.generateAiStream(), mimetype='multipart/x-mixed-replace; boundary=frame')
